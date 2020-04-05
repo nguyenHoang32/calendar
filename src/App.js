@@ -7,46 +7,44 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import Form from './components/Form'
 
+import Control from './components/Control/Control';
+import Form from './components/Form/Form';
+import ListEvent from './components/ListEvent/ListEvent'
 class App extends React.Component {
-
   state = {
     Events: [{
-      title: "Event", start: '2020-04-04'
+      title: "Event", start: new Date(),
     }],
-    isShowForm: false
+    isAddEvent: false,
+    isShowListEvent: false
   }
-  handDateClick = (info) => {
-    return new Promise((resolve, reject) => {
-      this.setState({
-        isShowForm: true,
-      })
-      if(this.handTitle()){
-        resolve();
+  onClick = (name) => {
+    switch(name){
+      case 'add': {
+        this.setState({
+          isAddEvent: !this.state.isAddEvent
+        })
+        break;
       }
-      else{
-        reject();
+      case 'event': {
+        this.setState({
+          isShowListEvent: !this.state.isShowListEvent
+        })
+        break;
       }
-    }).then(() => {
-      console.log(this.handTitle);
-    }
-    ).catch()
-  }
-
-  handTitle = (title) => {
-    if(title){
-      return title;
-    }
-    else{
-      return false
     }
   }
   render() {
-    const { isShowForm } = this.state;
+    const { isAddEvent, isShowListEvent, Events } = this.state;
     return (
       <div className="App">
-        {isShowForm && <Form handTitle={this.handTitle} />}
+        <Control onClick={this.onClick}/>
+        {isAddEvent && <Form />}
+        {isShowListEvent && 
+        <ListEvent 
+        Events={Events}
+        />}
         <FullCalendar
           defaultView="dayGridMonth"
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -56,8 +54,9 @@ class App extends React.Component {
             right: "dayGridMonth,timeGridWeek,timeGridDay"
           }}
           events={this.state.Events}
-          dateClick={this.handDateClick}
         />
+        
+
       </div>
     )
   }
