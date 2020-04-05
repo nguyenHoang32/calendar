@@ -14,8 +14,13 @@ class Form extends React.Component {
 		})
 	}
 	onSubmit = e => {
-		e.preventDefault()
-		console.log(this.state)
+		e.preventDefault();
+		const { title, dayStart, dayEnd }  = this.state;
+		this.props.onSubmit({
+			title: title,
+			start: dayStart,
+			end: dayEnd
+		})
 	}
 	componentDidMount = () => {
 
@@ -58,7 +63,6 @@ class Form extends React.Component {
 							onChange={this.onChange}
 						/>
 					</div>
-
 					<button type="submit" className="btn btn-primary">Submit</button>
 				</form>
 			</div>

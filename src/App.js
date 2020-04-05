@@ -35,12 +35,21 @@ class App extends React.Component {
       }
     }
   }
+  onSubmit = (event) => {
+    this.setState({
+      isAddEvent: false,
+      Events: this.state.Events.concat(event)
+    })
+  }
   render() {
     const { isAddEvent, isShowListEvent, Events } = this.state;
     return (
       <div className="App">
         <Control onClick={this.onClick}/>
-        {isAddEvent && <Form />}
+        {isAddEvent && 
+        <Form 
+        onSubmit={this.onSubmit}
+        />}
         {isShowListEvent && 
         <ListEvent 
         Events={Events}
