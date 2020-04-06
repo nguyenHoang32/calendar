@@ -4,7 +4,9 @@ class Form extends React.Component {
 	state = {
 		title: "",
 		dayStart: undefined,
-		dayEnd: undefined
+		startTime: undefined,
+		dayEnd: undefined,
+		endTime: undefined
 	}
 	onChange = e => {
 		const name = e.target.name;
@@ -15,51 +17,66 @@ class Form extends React.Component {
 	}
 	onSubmit = e => {
 		e.preventDefault();
-		const { title, dayStart, dayEnd }  = this.state;
+		const { title, dayStart, startTime, dayEnd, endTime } = this.state;
 		this.props.onSubmit({
 			title: title,
-			start: dayStart,
-			end: dayEnd
-		})
+			start: dayStart + 'T' + startTime,
+			end: dayEnd + 'T' + endTime,
+		});
+
 	}
 	componentDidMount = () => {
 
 	}
 	render() {
-		const { title, dayStart, dayEnd } = this.state;
+		const { title, dayStart, startTime, dayEnd, endTime } = this.state;
 		return (
 			<div className="container-form">
 				<form onSubmit={this.onSubmit}>
-					<div className="form-group">
-						<label>Tên :</label>
+					<div className="">
+						<label>Title :</label>
 						<input
 							type="text"
-							className="form-control"
+							className=" "
 							name="title"
 							value={title}
 							onChange={this.onChange}
 							required
 						/>
 					</div>
-					<div className="form-group">
-						<label>Ngày bắt đầu: </label>
+					<div className="">
+						<label>Bắt đầu: </label>
 						<input
 							type="date"
-							className="form-control"
+							className=""
 							name="dayStart"
 							value={dayStart}
 							onChange={this.onChange}
 							required
 							pattern="\d{4}-\d{2}-\d{2}"
 						/>
+						<input
+							type="time"
+							className=""
+							name="startTime"
+							value={startTime}
+							onChange={this.onChange}
+						/>
 					</div>
-					<div className="form-group">
-						<label>Ngày kết thúc: </label>
+					<div className="">
+						<label>Kết thúc: </label>
 						<input
 							type="date"
 							className="form-control"
 							name="dayEnd"
 							value={dayEnd}
+							onChange={this.onChange}
+						/>
+						<input
+							type="time"
+							className="form-control"
+							name="endTime"
+							value={endTime}
 							onChange={this.onChange}
 						/>
 					</div>

@@ -7,20 +7,22 @@ class ListEvent extends React.Component {
 				<tr>
 					<td>{index + 1}</td>
 					<td>{event.title}</td>
-					<td></td>
-					<td></td>
+					<td>{event.start}</td>
+					<td>{event.end}</td>
+					<td>Chỉnh sửa, Xóa</td>
 				</tr>
 			)
 		})
 		return (
 			<div>
-				<table class="table table-striped">
+				<table className="">
 					<thead>
 						<tr>
-							<th scope="col">STT</th>
-							<th scope="col">Tên</th>
-							<th scope="col">Bắt đầu</th>
-							<th scope="col">Kết thúc</th>
+							<th>STT</th>
+							<th>Tên</th>
+							<th>Bắt đầu</th>
+							<th>Kết thúc</th>
+							<th>Hành động</th>
 						</tr>
 					</thead>
 					<tbody>

@@ -13,9 +13,10 @@ import Form from './components/Form/Form';
 import ListEvent from './components/ListEvent/ListEvent'
 class App extends React.Component {
   state = {
-    Events: [{
-      title: "Event", start: new Date(),
-    }],
+    Events: [
+      
+    ],
+    
     isAddEvent: false,
     isShowListEvent: false
   }
@@ -33,6 +34,7 @@ class App extends React.Component {
         })
         break;
       }
+      default: ;
     }
   }
   onSubmit = (event) => {
@@ -62,7 +64,8 @@ class App extends React.Component {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
           }}
-          events={this.state.Events}
+          events={Events}
+          
         />
         
 
