@@ -4,15 +4,25 @@ class ListEvent extends React.Component {
 		const { Events } = this.props;
 		const result = Events.map((event, index) => {
 			return (
-				<tr>
+				<tr key={index}>
 					<td>{index + 1}</td>
 					<td>{event.title}</td>
 					<td>{event.start}</td>
 					<td>{event.end}</td>
-					<td>Chỉnh sửa, Xóa</td>
+					<td>
+					<button
+					onClick={() => {
+						
+						this.props.isUpdateEvent(event)
+						}}>
+						Chỉnh sửa
+					</button>
+					<button 
+					onClick={() => this.props.deleteEvent(event.id)}
+					>Xóa</button></td>
 				</tr>
 			)
-		})
+		});
 		return (
 			<div>
 				<table className="">
