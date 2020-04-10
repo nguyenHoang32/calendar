@@ -12,7 +12,6 @@ class ListEvent extends React.Component {
 					<td>
 					<button
 					onClick={() => {
-						
 						this.props.isUpdateEvent(event)
 						}}>
 						Chỉnh sửa

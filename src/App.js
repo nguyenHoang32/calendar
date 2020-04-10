@@ -16,15 +16,29 @@ class App extends React.Component {
   state = {
     Events: [],
     eventUpdate: {},
-    isAddEvent: false,
+    isShowForm: false,
     isShowListEvent: false,
+    infoDateClick: undefined,
+    infoEventClick: undefined
   };
-
+  handleDateClick = (infoDateClick) => {
+    console.log(infoDateClick)
+    this.setState({
+      isShowForm: true,
+      infoDateClick,
+    });
+  };
+  eventClick = (infoEventClick) => {
+    this.setState({
+      infoEventClick,
+      isShowForm: true
+    })
+  }
   onClick = (name) => {
     switch (name) {
       case "add": {
         this.setState({
-          isAddEvent: !this.state.isAddEvent,
+          isShowForm: !this.state.isShowForm,
         });
         break;
       }
@@ -38,56 +52,76 @@ class App extends React.Component {
     }
   };
   onSubmit = (eventFromChild) => {
-    const { eventUpdate, Events } = this.state;
-    if (eventUpdate.id) {
-      const index = Events.findIndex((event) => event.id === eventFromChild.id);
-      let calendar = this.calendarRef.current.getApi();
-      
-      let event = calendar.getEvents()[index];
-     
-      event.setDates(eventFromChild.start, eventFromChild.end, eventFromChild.allDay);
-      
+    // let calendarApi = this.calendarRef.current.getApi();
+    // //Update
+    // if(this.state.infoEventClick){
+    //   let eventApi = calendarApi.getEventById(eventFromChild.id);
+    //   console.log(eventApi)//NULL
+    //   eventApi.setProp('title', eventFromChild.title);
+    //   eventApi.setStart(eventFromChild.start);
+    //   eventApi.setEnd(eventFromChild.end)
+    // }//ADD
+    // else{
+    //   calendarApi.addEvent(eventFromChild);
+    //   this.setState({
+    //     isShowForm: false,
+    //     infoDateClick: undefined
+    //   })
+    // }
+    let Events = (this.state.Events).splice();
+    if(this.state.eventUpdate.id){
+      const index = Events.findIndex(event => event.id === eventFromChild.id);
       Events.splice(index, 1, eventFromChild);
       this.setState({
-        isAddEvent: false,
-        Events: Events,
-        eventUpdate: {},
-      });
-    } else {
+        Events,
+        isShowForm: false,
+        eventUpdate: {}
+      })
+    }else{
+      Events.push(eventFromChild);
       this.setState({
-        isAddEvent: false,
-        Events: this.state.Events.concat(eventFromChild),
-      });
+        Events,
+        isShowForm: false
+      })
     }
+    
   };
+    
   deleteEvent = (id) => {
-    let { Events } = this.state;
-    let index = Events.findIndex((event) => event.id === id);
-
-    let calendar = this.calendarRef.current.getApi();
-    let event = calendar.getEventById(id);
-    console.log(event)
-    event.remove();
-
+    let Events = (this.state.Events).splice();
+    const index = Events.findIndex(event => event.id === id);
     Events.splice(index, 1);
     this.setState({
-      Events: Events,
-    });
+      Events
+    })
   };
-  isUpdateEvent = (event) => {
+  isUpdateEvent = (eventUpdate) =>{
+    console.log(eventUpdate)
     this.setState({
-      isAddEvent: true,
-      eventUpdate: event,
-    });
-  };
+      eventUpdate,
+      isShowForm: true
+    })
+  }
   render() {
-    let { isAddEvent, isShowListEvent, Events, eventUpdate } = this.state;
-    
+    let {
+      isShowForm,
+      isShowListEvent,
+      Events,
+      eventUpdate,
+      infoDateClick,
+      infoEventClick
+    } = this.state;
+
     return (
       <div className="App">
         <Control onClick={this.onClick} />
-        {isAddEvent && (
-          <Form onSubmit={this.onSubmit} eventUpdate={eventUpdate} />
+        {isShowForm && (
+          <Form
+            onSubmit={this.onSubmit}
+            infoDateClick={infoDateClick}
+            infoEventClick={infoEventClick}
+            eventUpdate={eventUpdate}
+          />
         )}
         {isShowListEvent && (
           <ListEvent
@@ -96,7 +130,6 @@ class App extends React.Component {
             isUpdateEvent={this.isUpdateEvent}
           />
         )}
-
         <FullCalendar
           defaultView="dayGridMonth"
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -105,9 +138,11 @@ class App extends React.Component {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
-          events={Events}
+          // events={Events}
           ref={this.calendarRef}
-          editable={true}
+          events={Events}
+          dateClick={this.handleDateClick}
+          eventClick={this.eventClick}
         />
       </div>
     );

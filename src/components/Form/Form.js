@@ -1,13 +1,19 @@
 import React from "react";
 import "./style.css";
 const generateId = () => {
-  // let id =
-  //   Math.floor(Math.random() * 1000) + "-" + Math.floor(Math.random() * 1000);
-  let id = Math.floor(Math.random() * 10);
+  let id =
+    Math.floor(Math.random() * 1000) + "-" + Math.floor(Math.random() * 1000);
   return id;
 };
+const splitDateStr = (dateStr) => {
+  const arrDateStr = dateStr.split('T');
+  const startDay = arrDateStr[0];
+  const startTime = arrDateStr[1];
+  return [startDay, startTime];
+}
 class Form extends React.Component {
   state = {
+    id: undefined,
     title: "",
     startDay: undefined,
     startTime: undefined,
@@ -16,27 +22,45 @@ class Form extends React.Component {
     allDay: false,
   };
   componentDidMount = () => {
-		if (this.props.eventUpdate.id) { // Vô lý
-      const { title, start, end, allDay } = this.props.eventUpdate;
-      let arrStart = start.split("T");
-      let arrEnd = end.split("T");
-      let startDay = arrStart[0];
-      let startTime = arrStart[1];
-      let endDay = arrEnd[0];
-      let endTime = arrEnd[1];
+    const { infoDateClick, infoEventClick } = this.props;
+    if(infoDateClick){
+      const [startDay, startTime] = splitDateStr(infoDateClick.dateStr);
       this.setState({
-        title,
         startDay,
-        startTime,
+        startTime
+      })
+    }else if(infoEventClick){
+      let startDay = JSON.stringify(infoEventClick.event.start)
+      startDay = startDay.slice(1,11)
+      let endDay = JSON.stringify(infoEventClick.event.end)
+      endDay = endDay.slice(1,11)
+      this.setState({
+        title: infoEventClick.event.title,
+        startDay,
         endDay,
-        endTime,
-        allDay,
-      });
-		} 
-		else {
-		
+        id: infoEventClick.event.id
+      })
+    }else{
+
+    }
+    const eventUpdate = this.props.eventUpdate;
+    if(eventUpdate.id){
+      this.setState({
+        id: eventUpdate.id,
+        title: eventUpdate.title,
+        startDay: eventUpdate.start,
+        endDay: eventUpdate.end
+      })
     }
   };
+  static getDerivedStateFromProps = (props, state) => {
+    const { infoDateClick } = props;
+    if(infoDateClick){
+      const [startDay, startTime] = splitDateStr(infoDateClick.dateStr);
+      return { startDay, startTime}
+    }
+    return state;
+  }
   onChange = (e) => {
     const name = e.target.name;
     const value =
@@ -47,22 +71,23 @@ class Form extends React.Component {
   };
   onSubmit = (e) => {
     e.preventDefault();
-    const { title, startDay, startTime, endDay, endTime, allDay } = this.state;
-    let start, end;
-    if (startTime) {
-      start = startDay + "T" + startTime;
-      end = endDay + "T" + endTime;
-    } else {
-      start = startDay;
-      end = endDay;
+    if(this.state.id){
+      const event = {
+        title: this.state.title,
+        start: this.state.startDay,
+        end: this.state.endDay,
+      }
+      this.props.onSubmit(event);
+    }else{
+      const event = {
+        title: this.state.title,
+        start: this.state.startDay,
+        end: this.state.endDay,
+        id: generateId()
+      }
+      this.props.onSubmit(event);
     }
-    this.props.onSubmit({
-      id: generateId(),
-      title: title,
-      start,
-      end,
-      allDay,
-    });
+    
   };
 
   render() {
