@@ -6,11 +6,11 @@ const generateId = () => {
   return id;
 };
 const splitDateStr = (dateStr) => {
-  const arrDateStr = dateStr.split('T');
+  const arrDateStr = dateStr.split("T");
   const startDay = arrDateStr[0];
   const startTime = arrDateStr[1];
   return [startDay, startTime];
-}
+};
 class Form extends React.Component {
   state = {
     id: undefined,
@@ -22,44 +22,46 @@ class Form extends React.Component {
     allDay: false,
   };
   componentDidMount = () => {
-    const { infoDateClick, infoEventClick } = this.props;
+    const { infoDateClick, eventUpdate } = this.props;
+    console.log(eventUpdate)
     if(infoDateClick){
-      const [startDay, startTime] = splitDateStr(infoDateClick.dateStr);
+      console.log('infoDateClick')
       this.setState({
-        startDay,
-        startTime
+        startDay: infoDateClick.dateStr
       })
-    }else if(infoEventClick){
-      let startDay = JSON.stringify(infoEventClick.event.start)
-      startDay = startDay.slice(1,11)
-      let endDay = JSON.stringify(infoEventClick.event.end)
-      endDay = endDay.slice(1,11)
-      this.setState({
-        title: infoEventClick.event.title,
-        startDay,
-        endDay,
-        id: infoEventClick.event.id
-      })
-    }else{
-
     }
-    const eventUpdate = this.props.eventUpdate;
-    if(eventUpdate.id){
+    if (eventUpdate.id) {
+      console.log('Event Update')
       this.setState({
         id: eventUpdate.id,
         title: eventUpdate.title,
         startDay: eventUpdate.start,
-        endDay: eventUpdate.end
-      })
+        endDay: eventUpdate.end,
+      });
     }
   };
-  static getDerivedStateFromProps = (props, state) => {
-    const { infoDateClick } = props;
+  componentWillReceiveProps = (nextProps, nextState) => {
+    const { eventUpdate, infoDateClick } = nextProps;
     if(infoDateClick){
-      const [startDay, startTime] = splitDateStr(infoDateClick.dateStr);
-      return { startDay, startTime}
+      
+      this.setState({
+        title: '',
+        id: undefined,
+        startDay: infoDateClick.dateStr,
+        endDay: ''
+      })
     }
-    return state;
+    else if(eventUpdate.id !== this.state.id){
+      
+      this.setState({
+        title: eventUpdate.title,
+        startDay:eventUpdate.start,
+        endDay:eventUpdate.end,
+        id: eventUpdate.id,
+      }, )
+    }else{
+
+    }
   }
   onChange = (e) => {
     const name = e.target.name;
@@ -71,35 +73,43 @@ class Form extends React.Component {
   };
   onSubmit = (e) => {
     e.preventDefault();
-    if(this.state.id){
+    if (this.state.id) {
       const event = {
         title: this.state.title,
         start: this.state.startDay,
         end: this.state.endDay,
-      }
+        id: this.state.id
+      };
       this.props.onSubmit(event);
-    }else{
+    } else {
       const event = {
         title: this.state.title,
         start: this.state.startDay,
         end: this.state.endDay,
-        id: generateId()
-      }
+        id: generateId(),
+      };
       this.props.onSubmit(event);
     }
-    
+    this.setState({
+      id: undefined,
+      title: undefined,
+      startDay: undefined,
+      endDay: undefined
+    })
   };
 
   render() {
     const { title, startDay, startTime, endDay, endTime, allDay } = this.state;
+    
     return (
       <div className="container-form">
+        {/* {JSON.stringify(this.props.eventUpdate) === '{}' ? <h1>ADD EVENT</h1> : <h1>UPDATE EVENT</h1>} */}
         <form onSubmit={this.onSubmit}>
           <div className="">
             <label>Title :</label>
             <input
               type="text"
-              className=" "
+              className=""
               name="title"
               value={title}
               onChange={this.onChange}
@@ -117,7 +127,7 @@ class Form extends React.Component {
               onChange={this.onChange}
               required
             />
-            {!allDay && (
+            {/* {!allDay && (
               <input
                 type="time"
                 className=""
@@ -125,14 +135,14 @@ class Form extends React.Component {
                 value={startTime}
                 onChange={this.onChange}
               />
-            )}
-            Cả ngày :
+            )} */}
+            {/* Cả ngày :
             <input
               type="checkbox"
               name="allDay"
               checked={allDay}
               onChange={this.onChange}
-            />
+            /> */}
           </div>
           {/* Ket thuc */}
           <div className="">
@@ -144,7 +154,7 @@ class Form extends React.Component {
               value={endDay}
               onChange={this.onChange}
             />
-            {!allDay && (
+            {/* {!allDay && (
               <input
                 type="time"
                 className="form-control"
@@ -152,9 +162,9 @@ class Form extends React.Component {
                 value={endTime}
                 onChange={this.onChange}
               />
-            )}
+            )} */}
           </div>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="">
             Submit
           </button>
         </form>

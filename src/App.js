@@ -19,21 +19,31 @@ class App extends React.Component {
     isShowForm: false,
     isShowListEvent: false,
     infoDateClick: undefined,
-    infoEventClick: undefined
   };
+  getState = () => {
+    console.log(this.state)
+  }
   handleDateClick = (infoDateClick) => {
-    console.log(infoDateClick)
     this.setState({
+      eventUpdate: {},
       isShowForm: true,
       infoDateClick,
     });
   };
-  eventClick = (infoEventClick) => {
+  handleEventClick = (infoEventClick) => {
+    let startDay = JSON.parse(JSON.stringify(infoEventClick.event.start)).split('T')[0] ;
+    let endDay = JSON.parse(JSON.stringify(infoEventClick.event.end)).split('T')[0] ;
+      const eventUpdate = {
+      title: infoEventClick.event.title,
+      start: startDay,
+      end: endDay,
+      id: infoEventClick.event.id
+    }
     this.setState({
-      infoEventClick,
-      isShowForm: true
-    })
-  }
+      eventUpdate: {...eventUpdate},
+      isShowForm: true,
+    });
+  };
   onClick = (name) => {
     switch (name) {
       case "add": {
@@ -52,56 +62,43 @@ class App extends React.Component {
     }
   };
   onSubmit = (eventFromChild) => {
-    // let calendarApi = this.calendarRef.current.getApi();
-    // //Update
-    // if(this.state.infoEventClick){
-    //   let eventApi = calendarApi.getEventById(eventFromChild.id);
-    //   console.log(eventApi)//NULL
-    //   eventApi.setProp('title', eventFromChild.title);
-    //   eventApi.setStart(eventFromChild.start);
-    //   eventApi.setEnd(eventFromChild.end)
-    // }//ADD
-    // else{
-    //   calendarApi.addEvent(eventFromChild);
-    //   this.setState({
-    //     isShowForm: false,
-    //     infoDateClick: undefined
-    //   })
-    // }
-    let Events = (this.state.Events).splice();
+    let Events = JSON.parse(JSON.stringify(this.state.Events));
     if(this.state.eventUpdate.id){
       const index = Events.findIndex(event => event.id === eventFromChild.id);
       Events.splice(index, 1, eventFromChild);
       this.setState({
         Events,
         isShowForm: false,
-        eventUpdate: {}
+        eventUpdate: {},
+        infoDateClick: undefined
       })
     }else{
       Events.push(eventFromChild);
-      this.setState({
-        Events,
-        isShowForm: false
-      })
+      this.setState(
+        {
+          Events: Events,
+          isShowForm: false,
+          infoDateClick: undefined
+        },
+        
+      );
     }
-    
   };
-    
   deleteEvent = (id) => {
-    let Events = (this.state.Events).splice();
-    const index = Events.findIndex(event => event.id === id);
+    let Events = JSON.parse(JSON.stringify(this.state.Events));
+    const index = Events.findIndex((event) => event.id === id);
     Events.splice(index, 1);
     this.setState({
-      Events
-    })
+      Events,
+    });
   };
-  isUpdateEvent = (eventUpdate) =>{
-    console.log(eventUpdate)
+  isUpdateEvent = (eventUpdate) => {
     this.setState({
       eventUpdate,
-      isShowForm: true
-    })
-  }
+      isShowForm: true,
+      infoDateClick: undefined
+    });
+  };
   render() {
     let {
       isShowForm,
@@ -109,17 +106,18 @@ class App extends React.Component {
       Events,
       eventUpdate,
       infoDateClick,
-      infoEventClick
+      
     } = this.state;
 
     return (
       <div className="App">
+      <button onClick={this.getState}>Get state</button>
         <Control onClick={this.onClick} />
         {isShowForm && (
           <Form
             onSubmit={this.onSubmit}
             infoDateClick={infoDateClick}
-            infoEventClick={infoEventClick}
+            
             eventUpdate={eventUpdate}
           />
         )}
@@ -128,7 +126,7 @@ class App extends React.Component {
             Events={Events}
             deleteEvent={this.deleteEvent}
             isUpdateEvent={this.isUpdateEvent}
-          />
+          /> 
         )}
         <FullCalendar
           defaultView="dayGridMonth"
@@ -142,7 +140,7 @@ class App extends React.Component {
           ref={this.calendarRef}
           events={Events}
           dateClick={this.handleDateClick}
-          eventClick={this.eventClick}
+          eventClick={this.handleEventClick}
         />
       </div>
     );

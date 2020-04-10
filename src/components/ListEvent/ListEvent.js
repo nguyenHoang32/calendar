@@ -24,7 +24,7 @@ class ListEvent extends React.Component {
 		});
 		return (
 			<div>
-				<table className="">
+			{this.props.Events.length !== 0 ? <table className="">
 					<thead>
 						<tr>
 							<th>STT</th>
@@ -37,7 +37,8 @@ class ListEvent extends React.Component {
 					<tbody>
 						{result}
 					</tbody>
-				</table>
+				</table>: <h1>Không có sự kiện</h1> }
+				
 			</div>
 		)
 	}
