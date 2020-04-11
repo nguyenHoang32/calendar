@@ -7,9 +7,9 @@ const generateId = () => {
 };
 const splitDateStr = (dateStr) => {
   const arrDateStr = dateStr.split("T");
-  const startDay = arrDateStr[0];
-  const startTime = arrDateStr[1];
-  return [startDay, startTime];
+  const Day = arrDateStr[0];
+  const Time = arrDateStr[1];
+  return [Day, Time];
 };
 class Form extends React.Component {
   state = {
@@ -23,70 +23,95 @@ class Form extends React.Component {
   };
   componentDidMount = () => {
     const { infoDateClick, eventUpdate } = this.props;
-    console.log(eventUpdate)
-    if(infoDateClick){
-      console.log('infoDateClick')
+    if (infoDateClick) {
+      let [startDay, startTime] = splitDateStr(infoDateClick.dateStr);
+      if (startTime) {
+        startTime = startTime.split("+")[0];
+      }
       this.setState({
-        startDay: infoDateClick.dateStr
-      })
+        startDay,
+        startTime,
+      });
     }
     if (eventUpdate.id) {
-      console.log('Event Update')
+      const [startDay, startTime] = eventUpdate.start.split('.')[0].split('T');
+      const [endDay, endTime] =  eventUpdate.end.split('.')[0].split('T');
       this.setState({
         id: eventUpdate.id,
         title: eventUpdate.title,
-        startDay: eventUpdate.start,
-        endDay: eventUpdate.end,
+        startDay,
+        startTime,
+        endDay,
+        endTime,
+        allDay: eventUpdate.allDay,
       });
     }
   };
   componentWillReceiveProps = (nextProps, nextState) => {
     const { eventUpdate, infoDateClick } = nextProps;
-    if(infoDateClick){
-      
+    if (infoDateClick) {
+      let [startDay, startTime] = splitDateStr(infoDateClick.dateStr);
+      if (startTime) {
+        startTime = startTime.split("+")[0];
+      }
       this.setState({
-        title: '',
+        title: "",
         id: undefined,
-        startDay: infoDateClick.dateStr,
-        endDay: ''
-      })
-    }
-    else if(eventUpdate.id !== this.state.id){
-      
+        startDay,
+        startTime,
+        endDay: "",
+      });
+    } else if (eventUpdate.id !== this.state.id) {
+      const [startDay, startTime] = eventUpdate.start.split('.')[0].split('T');
+      const [endDay, endTime] =  eventUpdate.end.split('.')[0].split('T');
       this.setState({
         title: eventUpdate.title,
-        startDay:eventUpdate.start,
-        endDay:eventUpdate.end,
+        startDay,
+        startTime,
+        endDay,
+        endTime,
         id: eventUpdate.id,
-      }, )
-    }else{
-
+        allDay: eventUpdate.allDay,
+      });
+    } else {
     }
-  }
+  };
   onChange = (e) => {
     const name = e.target.name;
     const value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    if (e.target.type === "checkbox" && e.target.checked) {
+      this.setState({
+        [name]: value,
+        startTime: undefined,
+        endTime: undefined,
+      });
+    }
     this.setState({
       [name]: value,
     });
   };
   onSubmit = (e) => {
     e.preventDefault();
+    let { startTime, endTime } = this.state;
+    startTime = startTime === undefined ? "" : "T" + startTime;
+    endTime = endTime === undefined ? "" : "T" + endTime;
     if (this.state.id) {
       const event = {
         title: this.state.title,
-        start: this.state.startDay,
-        end: this.state.endDay,
-        id: this.state.id
+        start: this.state.startDay + startTime,
+        end: this.state.endDay + endTime,
+        id: this.state.id,
+        allDay: this.state.allDay,
       };
       this.props.onSubmit(event);
     } else {
       const event = {
         title: this.state.title,
-        start: this.state.startDay,
-        end: this.state.endDay,
+        start: this.state.startDay + startTime,
+        end: this.state.endDay + endTime,
         id: generateId(),
+        allDay: this.state.allDay,
       };
       this.props.onSubmit(event);
     }
@@ -94,16 +119,21 @@ class Form extends React.Component {
       id: undefined,
       title: undefined,
       startDay: undefined,
-      endDay: undefined
-    })
+      startTime: undefined,
+      endDay: undefined,
+      endTime: undefined,
+      allDay: undefined,
+    });
   };
-
   render() {
     const { title, startDay, startTime, endDay, endTime, allDay } = this.state;
-    
     return (
       <div className="container-form">
-        {/* {JSON.stringify(this.props.eventUpdate) === '{}' ? <h1>ADD EVENT</h1> : <h1>UPDATE EVENT</h1>} */}
+        {JSON.stringify(this.props.eventUpdate) === "{}" ? (
+          <h1>ADD EVENT</h1>
+        ) : (
+          <h1>UPDATE EVENT</h1>
+        )}
         <form onSubmit={this.onSubmit}>
           <div className="">
             <label>Title :</label>
@@ -127,22 +157,23 @@ class Form extends React.Component {
               onChange={this.onChange}
               required
             />
-            {/* {!allDay && (
+            {!allDay && (
               <input
                 type="time"
                 className=""
                 name="startTime"
                 value={startTime}
                 onChange={this.onChange}
+                required
               />
-            )} */}
-            {/* Cả ngày :
+            )}
+            Cả ngày :
             <input
               type="checkbox"
               name="allDay"
               checked={allDay}
               onChange={this.onChange}
-            /> */}
+            />
           </div>
           {/* Ket thuc */}
           <div className="">
@@ -153,16 +184,18 @@ class Form extends React.Component {
               name="endDay"
               value={endDay}
               onChange={this.onChange}
+              min={startDay}
             />
-            {/* {!allDay && (
+            {!allDay && (
               <input
                 type="time"
                 className="form-control"
                 name="endTime"
                 value={endTime}
                 onChange={this.onChange}
+                required
               />
-            )} */}
+            )}
           </div>
           <button type="submit" className="">
             Submit

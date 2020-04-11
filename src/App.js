@@ -11,6 +11,18 @@ import interactionPlugin from "@fullcalendar/interaction";
 import Control from "./components/Control/Control";
 import Form from "./components/Form/Form";
 import ListEvent from "./components/ListEvent/ListEvent";
+const convertDate = (info)  => {
+    let start = new Date(info.event.start);
+    let end = new Date(info.event.end);
+      const eventUpdate = {
+      title: info.event.title,
+      start: start.toISOString(),
+      end: end.toISOString(),
+      id: info.event.id,
+      allDay: info.event.allDay
+    }
+    return eventUpdate;
+}
 class App extends React.Component {
   calendarRef = React.createRef();
   state = {
@@ -20,8 +32,17 @@ class App extends React.Component {
     isShowListEvent: false,
     infoDateClick: undefined,
   };
-  getState = () => {
-    console.log(this.state)
+  
+  eventDragStop = (info) => {
+    // // const Events = Object.assign([], this.state.Events);
+    // let Events = JSON.parse(JSON.stringify(this.state.Events))
+    // const event = convertDate(info);
+    // const index = Events.findIndex((Event) => Event.id === event.id);
+    // console.log(index) 
+    // Events.splice(index, 1, event);
+    // this.setState({
+    //   Events: Object.assign([], Events)
+    // })
   }
   handleDateClick = (infoDateClick) => {
     this.setState({
@@ -31,14 +52,8 @@ class App extends React.Component {
     });
   };
   handleEventClick = (infoEventClick) => {
-    let startDay = JSON.parse(JSON.stringify(infoEventClick.event.start)).split('T')[0] ;
-    let endDay = JSON.parse(JSON.stringify(infoEventClick.event.end)).split('T')[0] ;
-      const eventUpdate = {
-      title: infoEventClick.event.title,
-      start: startDay,
-      end: endDay,
-      id: infoEventClick.event.id
-    }
+    const eventUpdate = convertDate(infoEventClick);
+    console.log(eventUpdate)
     this.setState({
       eventUpdate: {...eventUpdate},
       isShowForm: true,
@@ -49,6 +64,7 @@ class App extends React.Component {
       case "add": {
         this.setState({
           isShowForm: !this.state.isShowForm,
+          eventUpdate : {}
         });
         break;
       }
@@ -62,6 +78,7 @@ class App extends React.Component {
     }
   };
   onSubmit = (eventFromChild) => {
+    
     let Events = JSON.parse(JSON.stringify(this.state.Events));
     if(this.state.eventUpdate.id){
       const index = Events.findIndex(event => event.id === eventFromChild.id);
@@ -94,7 +111,7 @@ class App extends React.Component {
   };
   isUpdateEvent = (eventUpdate) => {
     this.setState({
-      eventUpdate,
+      eventUpdate: {...eventUpdate},
       isShowForm: true,
       infoDateClick: undefined
     });
@@ -111,7 +128,7 @@ class App extends React.Component {
 
     return (
       <div className="App">
-      <button onClick={this.getState}>Get state</button>
+      
         <Control onClick={this.onClick} />
         {isShowForm && (
           <Form
@@ -136,11 +153,12 @@ class App extends React.Component {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
-          // events={Events}
           ref={this.calendarRef}
           events={Events}
           dateClick={this.handleDateClick}
           eventClick={this.handleEventClick}
+          editable={true}
+          // eventDragStop={this.eventDragStop}
         />
       </div>
     );
