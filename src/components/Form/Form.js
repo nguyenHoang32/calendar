@@ -31,6 +31,7 @@ class Form extends React.Component {
       this.setState({
         startDay,
         startTime,
+        allDay: infoDateClick.allDay
       });
     }
     if (eventUpdate.id) {
@@ -60,6 +61,7 @@ class Form extends React.Component {
         startDay,
         startTime,
         endDay: "",
+        allDay: infoDateClick.allDay
       });
     } else if (eventUpdate.id !== this.state.id) {
       const [startDay, startTime] = eventUpdate.start.split('.')[0].split('T');
